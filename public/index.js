@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function getProducts(page){
     
-    axios.get(`http://localhost:3000/products/?page=${page}`).then((products) => {
+    axios.get(`http://3.82.128.218:3000/products/?page=${page}`).then((products) => {
             showProductsOnScreen(products);
             showPagination(products.data.data);
     })
@@ -76,12 +76,11 @@ document.addEventListener('click',(e)=>{
 
     if (e.target.className=='shop-item-button'){
         const prodId = Number(e.target.parentNode.parentNode.id.split('-')[1]);
-        axios.post('http://localhost:3000/cart', { productId: prodId}).then(data => {
+        axios.post('http://3.82.128.218:3000/cart', { productId: prodId}).then(data => {
             if(data.data.error){
                 throw new Error('Unable to add product');
             }
             showNotification(data.data.message, false);
-            getCartItems()
         })
         .catch(err => {
             showNotification(err, true);
@@ -94,13 +93,12 @@ document.addEventListener('click',(e)=>{
     if (e.target.className=='cancel'){
         document.querySelector('#cart').style = "display:none;"
     }
-
     if (e.target.className=='purchase-btn'){
         if (parseInt(document.querySelector('.cart-number').innerText) === 0){
             alert('You have Nothing in Cart , Add some products to purchase !');
             return;
         }
-        axios.post('http://localhost:3000/create-order')
+        axios.post('http://3.82.128.218:3000/create-order')
         .then(response=>{
             getCartItems();
             console.log(response);
@@ -114,10 +112,8 @@ document.addEventListener('click',(e)=>{
 })
 
 function getCartItems(){
-
-    axios.get('http://localhost:3000/cart').then(carProducts => {
-        console.log(carProducts.data)
-            showProductsInCart(carProducts.data.products);
+    axios.get('http://3.82.128.218:3000/cart').then(carProducts => {
+            showProductsInCart(carProducts.data);
             document.querySelector('#cart').style = "display:block;"
 
         }).catch(err=>{
@@ -128,7 +124,6 @@ function getCartItems(){
 function showProductsInCart(listofproducts){
     let total = 0 ; 
     cart_items.innerHTML = "";
-    console.log(listofproducts)
     listofproducts.forEach(product => {
         const id = `album-${product.id}`;
         const name = product.title;
@@ -146,7 +141,7 @@ function showProductsInCart(listofproducts){
         </span>
         <span class='cart-price cart-column'>${price}</span>
         <form onsubmit='deleteCartItem(event, ${product.id})' class='cart-quantity cart-column'>
-            <input type="text" value="${product.cartItem.quantity}">
+            <input type="text" value="1">
             <button>REMOVE</button>
         </form>`
         cart_items.appendChild(cart_item)
@@ -156,7 +151,7 @@ function showProductsInCart(listofproducts){
 }
 function deleteCartItem(e, prodId){
     e.preventDefault();
-    axios.post('http://localhost:3000/cart-delete-item', {productId: prodId})
+    axios.post('http://3.82.128.218:3000/cart-delete-item', {productId: prodId})
         .then(() => removeElementFromCartDom(prodId))
         .catch(err=>{
             showNotification(err, true);
