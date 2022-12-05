@@ -1,78 +1,83 @@
-const path = require('path');
+const path = require("path");
 
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require("express");
+const bodyParser = require("body-parser");
+const sequelize= require("./util/database");
+const cors = require('cors');
 
-const errorController = require('./controllers/error');
-const sequelize = require('./util/database');
-const Product = require('./models/product');
+const errorController = require("./controllers/error");
 const User = require('./models/user');
+const Product = require('./models/product');
 const Cart = require('./models/cart');
-const CartItem = require('./models/cart-item');
-const Order = require('./models/order');
-const OrderItem = require('./models/order-item');
-const cors = require('cors')
+const CartItem = require('./models/cartItem');
+const Order = require('./models/orders');
+const OrderItem = require('./models/OrderItems');
 
 const app = express();
-app.use(cors())
+app.use(cors());
 
-app.set('view engine', 'ejs');
-app.set('views', 'views');
+app.set("view engine", "ejs");
+app.set("views", "views");
 
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
 
 app.use(bodyParser.json({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use((req, res, next) => {
-  User.findByPk(1)
-    .then(user => {
-      req.user = user;
-      next();
+app.use((req,res,next)=>{
+    User.findByPk(1)
+    .then(user=>{
+        req.user = user ;               ////sequel object and not js object
+        next();                         ////going to next middleware 
     })
-    .catch(err => console.log(err));
-});
+    .catch(err=> console.log(err))
+})
 
-app.use('/admin', adminRoutes);
+app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 
 app.use((req , res)=>{
-  res.sendFile(path.join(__dirname , `public/${req.url}` ))
+    res.sendFile(path.join(__dirname , `public/${req.url}` ))
 })
 
 app.use(errorController.get404);
 
-Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+Product.belongsTo(User , {constraints:true , onDelete:'CASCADE'});
 User.hasMany(Product);
+
 User.hasOne(Cart);
 Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through: CartItem });
-Product.belongsToMany(Cart, { through: CartItem });
+Cart.belongsToMany(Product, {through: CartItem});
+Product.belongsToMany(Cart, {through:CartItem})
+
 Order.belongsTo(User);
 User.hasMany(Order);
-Order.belongsToMany(Product, { through: OrderItem });
+Order.belongsToMany(Product , {through:OrderItem})
+Product.belongsToMany(Order, {through:OrderItem})
+
 
 sequelize
-  // .sync({ force: true })
-  .sync()
-  .then(result => {
+.sync()
+// .sync({force: true})
+.then(result=>{
     return User.findByPk(1);
-    // console.log(result);
-  })
-  .then(user => {
-    if (!user) {
-      return User.create({ name: 'Max', email: 'test@test.com' });
+    
+})
+.then((user)=>{
+    if(!user){
+        return User.create({name:"rahul" , email:"test@test.com"});
     }
-    return user;
-  })
-  .then(user => {
-    // console.log(user);
+    return user; 
+})
+.then(user =>{
     return user.createCart();
-  })
-  .then(cart => {
+})
+.then(cart=>{
     app.listen(3000);
-  })
-  .catch(err => {
+})
+.catch(err=>{
     console.log(err);
-  });
+})
+
+// app.listen(3000);
