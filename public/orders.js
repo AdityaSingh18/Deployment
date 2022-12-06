@@ -4,7 +4,7 @@ window.addEventListener('DOMContentLoaded', getOrderDetails)
 
 async function getOrderDetails(){
     try {
-        let result = await axios.get('http://3.82.128.218:3000/orders') ;
+        let result = await axios.get('http://43.206.57.74:3000/orders') ;
         console.log(result.data);
         if(result.data.length <= 0){
             orderContent.innerHTML = `No Orders Uptil now`

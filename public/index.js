@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function getProducts(page){
     
-    axios.get(`http://3.82.128.218:3000/products/?page=${page}`).then((products) => {
+    axios.get(`http://43.206.57.74:3000/products/?page=${page}`).then((products) => {
             showProductsOnScreen(products);
             showPagination(products.data.data);
     })
@@ -76,7 +76,7 @@ document.addEventListener('click',(e)=>{
 
     if (e.target.className=='shop-item-button'){
         const prodId = Number(e.target.parentNode.parentNode.id.split('-')[1]);
-        axios.post('http://3.82.128.218:3000/cart', { productId: prodId}).then(data => {
+        axios.post('http://43.206.57.74:3000/cart', { productId: prodId}).then(data => {
             if(data.data.error){
                 throw new Error('Unable to add product');
             }
@@ -98,7 +98,7 @@ document.addEventListener('click',(e)=>{
             alert('You have Nothing in Cart , Add some products to purchase !');
             return;
         }
-        axios.post('http://3.82.128.218:3000/create-order')
+        axios.post('http://43.206.57.74:3000/create-order')
         .then(response=>{
             getCartItems();
             console.log(response);
@@ -112,7 +112,7 @@ document.addEventListener('click',(e)=>{
 })
 
 function getCartItems(){
-    axios.get('http://3.82.128.218:3000/cart').then(carProducts => {
+    axios.get('http://43.206.57.74:3000/cart').then(carProducts => {
             showProductsInCart(carProducts.data);
             document.querySelector('#cart').style = "display:block;"
 
@@ -151,7 +151,7 @@ function showProductsInCart(listofproducts){
 }
 function deleteCartItem(e, prodId){
     e.preventDefault();
-    axios.post('http://3.82.128.218:3000/cart-delete-item', {productId: prodId})
+    axios.post('http://43.206.57.74:3000/cart-delete-item', {productId: prodId})
         .then(() => removeElementFromCartDom(prodId))
         .catch(err=>{
             showNotification(err, true);
